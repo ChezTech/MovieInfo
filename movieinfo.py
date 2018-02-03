@@ -1,6 +1,9 @@
 import sys
 import os
 import re
+from collections import namedtuple
+
+MovieInfo = namedtuple("MovieInfo", "title originalTitle releaseDate")
 
 def getMovieNames(path=None):
     if not os.path.isdir(path):
@@ -16,25 +19,32 @@ def getMovieNames(path=None):
             print(f"\nChecking {entry.name}...")
             # print(entry.path)
 
-            # if alreadyHasYearInName(entry.name):
-            #     print("   already has a year")
-            #     continue
+            if alreadyHasYearInName(entry.name):
+                print("   already has a year")
+                continue
 
-            getMainMovieName(entry.name)
+            mainMovieName = getMainMovieName(entry.name)
+            print(f"   main movie name: {mainMovieName}")
+
+            movieInfo = fetchMovieInfo(mainMovieName)
+            print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
 
     
 def getMainMovieName(movieName):
     # Trim the movie name down to just the main part of the name
     # up until a '-', '[', '(', or the extension
+    # if no match, then the whole movieName
     match = re.search(r'(.*?)(?=\s*[([.-])|(.+)', movieName)
-    if match:
-        print(f"**{match.group()}**")
-    else:
-        print(f"##{movieName}##")
+    # if match:
+    #     print(f"**{match.group()}**")
+    # else:
+    #     print(f"##{movieName}##")
+    return match.group()
     
 
 def fetchMovieInfo(movieName):
-    pass
+    
+    return MovieInfo(title="aTitle", originalTitle="origTitle", releaseDate="2018-01-01")
 
 def alreadyHasYearInName(movieName):
     # See if the name has a 4 digit year in parentheses
