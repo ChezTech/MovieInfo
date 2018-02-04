@@ -100,14 +100,18 @@ def doesMovieMatch(o, movieName):
 
 def findNameMatch(movieName, results):
     matchedNames = list(filter(lambda o: doesMovieMatch(o, movieName), results))
-    infos = list(map(lambda o: MovieInfo(title=o["title"], originalTitle=o["original_title"], releaseDate=o["release_date"]), matchedNames))
 
-    if len(infos) == 1:
-        return infos[0]
+    # Easy
+    if len(matchedNames) == 1:
+        info = matchedNames[0]
+        mi = MovieInfo(title=info["title"], originalTitle=info["original_title"], releaseDate=info["release_date"])
+        return mi
 
-    if len(infos) > 1:
-        for info in infos:
-            print(f"   possibility: {info.title}, {info.originalTitle}, {info.releaseDate}")
+    # Take the most popular one
+    if len(matchedNames) > 1:
+        info = max(matchedNames, key=lambda x:x['popularity'])
+        mi = MovieInfo(title=info["title"], originalTitle=info["original_title"], releaseDate=info["release_date"])
+        return mi
 
     # TODO: looser movie match, maybe just name contains, or check popularity, or vote_count?
 
