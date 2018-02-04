@@ -39,6 +39,15 @@ def getMovieNames(path=None):
             newName = getNewName(movieInfo, movieNameSuffix)
             print(f"   {newName}")
 
+            renameEntry(path, entry, newName)
+
+
+def renameEntry(path, entry, newName):
+
+    newPath = os.path.join(path, newName)
+    print(f"   Renaming: {entry.path} -> {newPath}")
+    os.rename(entry.path, newPath)
+
 
 def getNewName(movieInfo, movieNameSuffix):
     year = movieInfo.releaseDate[0:4]
