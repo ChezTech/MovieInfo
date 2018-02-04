@@ -5,6 +5,7 @@ from collections import namedtuple
 import secrets
 import requests
 import json
+import functools
 
 MovieInfo = namedtuple("MovieInfo", "title originalTitle releaseDate")
 
@@ -46,6 +47,8 @@ def getMainMovieName(movieName):
     return match.group()
     
 
+
+@functools.lru_cache(maxsize=500)
 def fetchMovieInfo(movieName):
     url = "https://api.themoviedb.org/3/search/movie"
 
@@ -55,7 +58,7 @@ def fetchMovieInfo(movieName):
 
     if (response.status_code != 200):
         print(f"Unable to get info for: {movieName}")
-        return
+        return None
 
     # print(response.text)
 
