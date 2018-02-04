@@ -67,6 +67,7 @@ def fetchMovieInfo(movieName):
 
     if (response.status_code != 200):
         print(f"   ***Unable to get info for: {movieName}")
+        print(f"   Status Code: {response.status_code}")
         print(response.headers)
         return None
 
