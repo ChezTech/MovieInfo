@@ -66,7 +66,8 @@ def fetchMovieInfo(movieName):
     response = requests.request("GET", url, params=payload)
 
     if (response.status_code != 200):
-        print(f"Unable to get info for: {movieName}")
+        print(f"   ***Unable to get info for: {movieName}")
+        print(response.headers)
         return None
 
     # print(response.text)
