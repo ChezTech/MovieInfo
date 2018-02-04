@@ -31,10 +31,20 @@ def getMovieNames(path=None):
             print(f"   main movie name: {mainMovieName}")
 
             movieInfo = fetchMovieInfo(mainMovieName)
-            if movieInfo is not None:
-                print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
+            if movieInfo is None:
+                continue
 
-    
+            print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
+
+            newName = getNewName(movieInfo)
+            print(f"   {newName}")
+
+
+def getNewName(movieInfo):
+    year = movieInfo.releaseDate[0:4]
+    return f"{movieInfo.title} ({year})"
+
+
 def getMainMovieName(movieName):
     # Trim the movie name down to just the main part of the name
     # up until a '-', '[', '(', or the extension
@@ -45,7 +55,6 @@ def getMainMovieName(movieName):
     # else:
     #     print(f"##{movieName}##")
     return match.group()
-    
 
 
 @functools.lru_cache(maxsize=500)
@@ -53,7 +62,7 @@ def fetchMovieInfo(movieName):
     url = "https://api.themoviedb.org/3/search/movie"
 
     payload = {"api_key": secrets.apiKey, "query": movieName}
-    
+
     response = requests.request("GET", url, params=payload)
 
     if (response.status_code != 200):
@@ -64,13 +73,14 @@ def fetchMovieInfo(movieName):
 
     return findNameMatch(movieName,  response.json()['results'])
 
+
 def doesMovieMatch(o, movieName):
     if movieName == o["title"]:
         return True
     if movieName == o["original_title"]:
         return True
     return False
-    
+
 
 def findNameMatch(movieName, results):
     matchedNames = list(filter(lambda o: doesMovieMatch(o, movieName), results))
@@ -84,7 +94,7 @@ def findNameMatch(movieName, results):
             print(f"   possibility: {info.title}, {info.originalTitle}, {info.releaseDate}")
 
     # TODO: looser movie match, maybe just name contains, or check popularity, or vote_count?
-    
+
     return None
 
 
