@@ -16,3 +16,4 @@ Here's what I'm using, should work anywhere.
 * VS Code 64-bit
   * Python extension
 * Python 3.6.4
+  * `pip install requests`

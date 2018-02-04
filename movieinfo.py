@@ -2,6 +2,9 @@ import sys
 import os
 import re
 from collections import namedtuple
+import secrets
+import requests
+import json
 
 MovieInfo = namedtuple("MovieInfo", "title originalTitle releaseDate")
 
@@ -27,7 +30,8 @@ def getMovieNames(path=None):
             print(f"   main movie name: {mainMovieName}")
 
             movieInfo = fetchMovieInfo(mainMovieName)
-            print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
+            if movieInfo is not None:
+                print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
 
     
 def getMainMovieName(movieName):
@@ -43,8 +47,43 @@ def getMainMovieName(movieName):
     
 
 def fetchMovieInfo(movieName):
+    url = "https://api.themoviedb.org/3/search/movie"
+
+    payload = {"api_key": secrets.apiKey, "query": movieName}
     
-    return MovieInfo(title="aTitle", originalTitle="origTitle", releaseDate="2018-01-01")
+    response = requests.request("GET", url, params=payload)
+
+    if (response.status_code != 200):
+        print(f"Unable to get info for: {movieName}")
+        return
+
+    # print(response.text)
+
+    return findNameMatch(movieName,  response.json()['results'])
+
+def doesMovieMatch(o, movieName):
+    if movieName == o["title"]:
+        return True
+    if movieName == o["original_title"]:
+        return True
+    return False
+    
+
+def findNameMatch(movieName, results):
+    matchedNames = list(filter(lambda o: doesMovieMatch(o, movieName), results))
+    infos = list(map(lambda o: MovieInfo(title=o["title"], originalTitle=o["original_title"], releaseDate=o["release_date"]), matchedNames))
+
+    if len(infos) == 1:
+        return infos[0]
+
+    if len(infos) > 1:
+        for info in infos:
+            print(f"   possibility: {info.title}, {info.originalTitle}, {info.releaseDate}")
+
+    # TODO: looser movie match, maybe just name contains, or check popularity, or vote_count?
+    
+    return None
+
 
 def alreadyHasYearInName(movieName):
     # See if the name has a 4 digit year in parentheses
