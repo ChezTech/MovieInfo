@@ -27,8 +27,8 @@ def getMovieNames(path=None):
                 print("   already has a year")
                 continue
 
-            mainMovieName = getMainMovieName(entry.name)
-            print(f"   main movie name: {mainMovieName}")
+            mainMovieName, movieNameSuffix = getMovieNameParts(entry.name)
+            print(f"   main movie name: {mainMovieName} suffix: {movieNameSuffix}")
 
             movieInfo = fetchMovieInfo(mainMovieName)
             if movieInfo is None:
@@ -36,16 +36,18 @@ def getMovieNames(path=None):
 
             print(f"   info: {movieInfo.title}, {movieInfo.originalTitle}, {movieInfo.releaseDate}")
 
-            newName = getNewName(movieInfo)
+            newName = getNewName(movieInfo, movieNameSuffix)
             print(f"   {newName}")
 
 
-def getNewName(movieInfo):
+def getNewName(movieInfo, movieNameSuffix):
     year = movieInfo.releaseDate[0:4]
-    return f"{movieInfo.title} ({year})"
+    return f"{movieInfo.title} ({year}){movieNameSuffix}"
 
 
-def getMainMovieName(movieName):
+def getMovieNameParts(movieName):
+    """Get the main movie name, as well as the remaining parts"""
+
     # Trim the movie name down to just the main part of the name
     # up until a '-', '[', '(', or the extension
     # if no match, then the whole movieName
@@ -54,7 +56,10 @@ def getMainMovieName(movieName):
     #     print(f"**{match.group()}**")
     # else:
     #     print(f"##{movieName}##")
-    return match.group()
+    mainName = match.group()
+    suffixName = movieName[len(mainName):]
+
+    return mainName, suffixName
 
 
 @functools.lru_cache(maxsize=500)
